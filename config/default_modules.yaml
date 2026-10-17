@@ -1,0 +1,95 @@
+# ECOFUAV Hangar varsayılan modülleri. İlk açılışta ~/.config/ecofuav-hangar/modules.yaml
+# dosyasına kopyalanır; sonrasında değişiklikler uygulamadaki "Modüller" sayfasından yapılır.
+
+global_setup:
+  - source /opt/ros/humble/setup.bash
+
+cleanup_command: |
+  # [g]z gibi köşeli parantez, pkill'in bu betiğin kendisini öldürmesini engeller.
+  pkill -INT -x px4 && sleep 2
+  pkill -9 -x px4
+  pkill -9 -f '[g]z sim'
+  pkill -9 -f '[M]icroXRCEAgent'
+  pkill -9 -f '[p]arameter_bridge'
+  pkill -9 -f '[Q]GroundControl'
+  echo "Temizlik tamam."
+
+modules:
+  - id: xrce_udp
+    name: Micro XRCE-DDS Agent
+    description: PX4 SITL ↔ ROS 2 köprüsü (UDP 8888)
+    workdir: "~"
+    use_global_setup: false
+    command: MicroXRCEAgent udp4 -p 8888
+    start_delay: 1
+    stop_timeout: 3
+    start_all: true
+
+  - id: px4_sitl
+    name: PX4 SITL + Gazebo
+    description: x500 + mono kamera, Gazebo Harmonic
+    workdir: ~/PX4-Autopilot
+    use_global_setup: false
+    command: make px4_sitl gz_x500_mono_cam
+    env:
+      PX4_GZ_WORLD: default
+    ready_pattern: Ready for takeoff
+    ready_timeout: 600
+    start_delay: 2
+    stop_timeout: 15
+    start_all: true
+
+  - id: gz_cam_bridge
+    name: Gazebo Kamera Köprüsü
+    description: Simülasyon kamerasını /camera/image_raw olarak ROS 2'ye aktarır. Topic adını 'gz topic -l' ile doğrulayın.
+    workdir: "~"
+    command: >-
+      ros2 run ros_gz_bridge parameter_bridge
+      '/world/default/model/x500_mono_cam_0/link/camera_link/sensor/imager/image@sensor_msgs/msg/Image[gz.msgs.Image'
+      --ros-args -r /world/default/model/x500_mono_cam_0/link/camera_link/sensor/imager/image:=/camera/image_raw
+    start_all: true
+
+  - id: qgc
+    name: QGroundControl
+    description: Yer kontrol istasyonu
+    workdir: "~"
+    use_global_setup: false
+    command: ~/QGroundControl.AppImage
+    stop_timeout: 5
+    start_all: true
+
+  - id: offboard
+    name: Offboard Kontrol
+    description: 10 Hz TrajectorySetpoint düğümü. Paket/düğüm adını kendi projenize göre düzenleyin.
+    workdir: ~/iha_ws
+    setup:
+      - source ~/iha_ws/install/setup.bash
+    command: ros2 run iha_control offboard_node
+    start_all: false
+
+  - id: vision
+    name: YOLOv11 + BoT-SORT
+    description: Tespit ve takip düğümü. Paket/düğüm adını kendi projenize göre düzenleyin.
+    workdir: ~/iha_ws
+    setup:
+      - source ~/iha_ws/install/setup.bash
+    command: ros2 run iha_vision tracker_node
+    start_all: false
+
+  - id: px4_topics
+    name: PX4 Topic Listesi
+    description: Örnek makro; köprünün çalıştığını hızlıca kontrol eder.
+    workdir: "~"
+    setup:
+      - source ~/iha_ws/install/setup.bash
+    command: ros2 topic list | grep /fmu/
+    start_all: false
+
+  - id: xrce_serial
+    name: XRCE Agent (Pixhawk seri)
+    description: "Gerçek uçuş: Jetson'da TELEM2 → /dev/ttyTHS1. Laptopta USB için /dev/ttyACM0 yapın."
+    workdir: "~"
+    use_global_setup: false
+    command: MicroXRCEAgent serial --dev /dev/ttyTHS1 -b 921600
+    stop_timeout: 3
+    start_all: false

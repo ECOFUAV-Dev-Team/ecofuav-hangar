@@ -1,0 +1,62 @@
+# Takımın ortak sürüm seti. Sürüm değiştirmek için bu dosyayı güncelleyip repoya push'layın;
+# herkes Kurulum sayfasındaki "Sürüm Listesini Güncelle" ile aynı sürüme gelir.
+team_version: "2026.1"
+
+# Betiklere ve kontrol komutlarına ortam değişkeni olarak verilir.
+env:
+  PX4_DIR: ~/PX4-Autopilot
+  ROS_WS: ~/iha_ws
+  QGC_PATH: ~/QGroundControl.AppImage
+
+components:
+  - id: ros2
+    name: ROS 2 Humble (desktop + dev tools)
+    required: humble
+    version: humble
+    check: '[ -f /opt/ros/humble/setup.bash ] && echo humble'
+    script: ros2_humble.sh
+
+  - id: gazebo
+    name: Gazebo Harmonic + ros_gz köprüsü
+    required: Harmonic (gz-sim 8.x)
+    version: harmonic
+    match: '^8\.'
+    check: dpkg-query -W -f='${Version}' libgz-sim8 2>/dev/null
+    script: gazebo_harmonic.sh
+
+  - id: px4
+    name: PX4-Autopilot (SITL + Pixhawk 6C derleme araçları)
+    required: v1.15.4
+    version: v1.15.4
+    check: git -C "$PX4_DIR" describe --tags --exact-match 2>/dev/null || git -C "$PX4_DIR" describe --tags 2>/dev/null
+    script: px4.sh
+
+  - id: microxrce
+    name: Micro XRCE-DDS Agent
+    required: v2.4.3
+    version: v2.4.3
+    check: command -v MicroXRCEAgent >/dev/null && (cat "$HANGAR_MARKER_DIR/microxrce" 2>/dev/null || echo "bilinmiyor")
+    script: microxrce_agent.sh
+
+  - id: px4_msgs
+    name: px4_msgs (ROS 2 çalışma alanında)
+    required: release/1.15
+    version: release/1.15
+    description: PX4 sürümüyle eşleşmek zorunda; aksi halde ROS 2 mesajları uyuşmaz.
+    check: '[ -f "$ROS_WS/install/px4_msgs/share/px4_msgs/package.xml" ] && git -C "$ROS_WS/src/px4_msgs" rev-parse --abbrev-ref HEAD 2>/dev/null'
+    script: px4_msgs.sh
+
+  - id: qgc
+    name: QGroundControl
+    required: v4.4.5
+    version: v4.4.5
+    check: '[ -x "$QGC_PATH" ] && cat "$HANGAR_MARKER_DIR/qgc" 2>/dev/null'
+    script: qgroundcontrol.sh
+
+  - id: yolo
+    name: Ultralytics (YOLOv11 + BoT-SORT)
+    required: 8.3.40
+    version: 8.3.40
+    description: Laptop (x86_64) içindir. Jetson'da PyTorch, NVIDIA'nın JetPack wheel'lerinden kurulmalıdır.
+    check: python3 -c "import ultralytics; print(ultralytics.__version__)" 2>/dev/null
+    script: yolo.sh

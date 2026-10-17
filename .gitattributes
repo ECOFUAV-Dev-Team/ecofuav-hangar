@@ -1,0 +1,3 @@
+# Betikler Windows'ta klonlansa da Linux satır sonlarıyla (LF) kalsın.
+* text=auto eol=lf
+*.png binary
