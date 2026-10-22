@@ -41,6 +41,9 @@ param set-default FW_PSP_OFF 2
 param set-default FW_P_LIM_MAX 32
 param set-default FW_P_LIM_MIN -15
 param set-default FW_LND_ANG 8
+# Modelde mesafe sensörü yok; flare GPS/baro irtifasıyla yapılsın. Aksi halde
+# FW_LND_ABORT 'terrain measurement not found' ile inişi iptal edip 30 m'de bekliyor.
+param set-default FW_LND_USETER 0
 
 param set-default FW_T_CLMB_R_SP 4
 param set-default FW_T_CLMB_MAX 5
