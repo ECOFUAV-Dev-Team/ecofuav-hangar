@@ -15,6 +15,8 @@ from enum import Enum
 
 from PySide6.QtCore import QObject, Signal
 
+from .paths import APP_DIR
+
 ANSI_RE = re.compile(r"\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b[()][A-Za-z0-9]")
 
 # Uygulamanın kendi Qt ayarları, alt süreçlerdeki Qt uygulamalarını (QGC, gz gui) bozmasın.
@@ -37,6 +39,8 @@ def child_env(extra: dict[str, str] | None = None) -> dict[str, str]:
     env.setdefault("PYTHONUNBUFFERED", "1")
     env.setdefault("RCUTILS_LOGGING_BUFFERED_STREAM", "1")
     env.setdefault("RCUTILS_COLORIZED_OUTPUT", "0")
+    # Modül komutları repodaki dosyalara (ör. sim/px4) $HANGAR_DIR ile ulaşır.
+    env.setdefault("HANGAR_DIR", str(APP_DIR))
     for key, value in (extra or {}).items():
         env[key] = os.path.expandvars(os.path.expanduser(value))
     return env

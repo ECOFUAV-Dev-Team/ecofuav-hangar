@@ -23,6 +23,8 @@ MODELS: dict[str, int] = {
     "gz_standard_vtol": 4004,
     "gz_x500_vision": 4005,
     "gz_x500_mono_cam": 4010,
+    # Takımın kendi uçağı; model ve airframe repodaki sim/px4 klasöründen gelir.
+    "gz_iha": 4900,
 }
 
 PLACEHOLDER_HELP = "{i}: PX4 örnek no · {ns}: px4_{i} · {sysid}: MAV_SYS_ID · {name}: araç adı · {gz_model}: Gazebo model adı"
@@ -139,8 +141,11 @@ def build_modules(fleet: FleetConfig, base: LauncherConfig) -> LauncherConfig:
             description=f"{v.model} · konum ({v.x:g}, {v.y:g}) · /px4_{i} · {role}",
             workdir=fleet.px4_dir,
             use_global_setup=False,
-            # İlk araç, PX4 henüz derlenmemişse derler.
-            setup=["[ -x build/px4_sitl_default/bin/px4 ] || DONT_RUN=1 make px4_sitl gz_x500"] if n == 0 else [],
+            # İlk araç takımın İHA modelini PX4'e kopyalar, PX4 henüz derlenmemişse derler.
+            setup=[
+                'PX4_DIR="$PWD" bash "$HANGAR_DIR/install/scripts/iha_model.sh"',
+                "[ -x build/px4_sitl_default/bin/px4 ] || DONT_RUN=1 make px4_sitl gz_x500",
+            ] if n == 0 else [],
             command=f"./build/px4_sitl_default/bin/px4 -i {i}",
             env=env,
             ready_pattern="Ready for takeoff",

@@ -1,0 +1,280 @@
+<?xml version="1.0"?>
+<!--
+  Savasan IHA - PX4 SITL / Gazebo Harmonic modeli
+  Kaynak: sim/urdf/iha.urdf (SolidWorks export)
+
+  Eksen: x ileri (burun), y sol, z yukari. base_link origin'i yaklasik agirlik
+  merkezinde (kanat hucum kenarindan %25 veter geride). STL mesh'leri SolidWorks
+  koordinatinda oldugu icin gorsel pozlari asagidaki ofsetle kaydirildi:
+    CG (mesh koordinatinda) = (0.65, -1.543, 1.03)
+
+  Geometri (mesh'ten olculdu): kanat acikligi 2.27 m, veter 0.27 m,
+  alan ~0.60 m2, AR ~8.6. Itici (pusher) pervane govde arkasinda.
+  Kontrol yuzeyleri mesh'te ayri parca olmadigi icin gorunmez linkler.
+
+  Bu dosyanin asli ecofuav-hangar reposunda (sim/px4/models/iha); Hangar
+  PX4'u her baslatmadan once install/scripts/iha_model.sh ile
+  PX4-Autopilot/Tools/simulation/gz/models/iha'ya kopyalar.
+-->
+<sdf version='1.9'>
+  <model name='iha'>
+    <pose>0 0 0.20 0 0 0</pose>
+
+    <link name='base_link'>
+      <inertial>
+        <mass>4.23</mass>
+        <!-- URDF'teki Izz (0.043) fiziksel degil; ince plaka yaklasimi Izz ~ Ixx+Iyy -->
+        <inertia>
+          <ixx>0.220</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.228</iyy>
+          <iyz>0</iyz>
+          <izz>0.430</izz>
+        </inertia>
+      </inertial>
+
+      <visual name='base_link_visual'>
+        <pose>-0.65 1.543 -1.03 0 0 0</pose>
+        <geometry>
+          <mesh><uri>model://iha/meshes/base_link.STL</uri></mesh>
+        </geometry>
+        <material>
+          <ambient>0.79 0.82 0.93 1</ambient>
+          <diffuse>0.79 0.82 0.93 1</diffuse>
+        </material>
+      </visual>
+
+      <!-- Govde (sadece govde catisi carpismasi; kanatlar yerden yuksekte) -->
+      <collision name='fuselage_collision'>
+        <pose>0.15 0 0 0 0 0</pose>
+        <geometry><box><size>0.9 0.2 0.18</size></box></geometry>
+      </collision>
+
+      <!-- Tekerlekler: ana takim (x=-0.145, y=+-0.24), burun (x=0.28). Dusuk
+           surtunme = yuvarlanma yaklasimi. -->
+      <collision name='wheel_main_left'>
+        <pose>-0.145 0.24 -0.148 0 0 0</pose>
+        <geometry><sphere><radius>0.04</radius></sphere></geometry>
+        <surface><friction><ode><mu>0.05</mu><mu2>0.05</mu2></ode></friction></surface>
+      </collision>
+      <collision name='wheel_main_right'>
+        <pose>-0.145 -0.24 -0.148 0 0 0</pose>
+        <geometry><sphere><radius>0.04</radius></sphere></geometry>
+        <surface><friction><ode><mu>0.05</mu><mu2>0.05</mu2></ode></friction></surface>
+      </collision>
+      <collision name='wheel_nose'>
+        <pose>0.28 0 -0.148 0 0 0</pose>
+        <geometry><sphere><radius>0.04</radius></sphere></geometry>
+        <surface><friction><ode><mu>0.05</mu><mu2>0.05</mu2></ode></friction></surface>
+      </collision>
+
+      <sensor name="imu_sensor" type="imu">
+        <gz_frame_id>base_link</gz_frame_id>
+        <always_on>1</always_on>
+        <update_rate>250</update_rate>
+        <imu>
+          <angular_velocity>
+            <x><noise type="gaussian"><stddev>0.0003394</stddev><dynamic_bias_stddev>3.8785e-05</dynamic_bias_stddev><dynamic_bias_correlation_time>1000</dynamic_bias_correlation_time></noise></x>
+            <y><noise type="gaussian"><stddev>0.0003394</stddev><dynamic_bias_stddev>3.8785e-05</dynamic_bias_stddev><dynamic_bias_correlation_time>1000</dynamic_bias_correlation_time></noise></y>
+            <z><noise type="gaussian"><stddev>0.0003394</stddev><dynamic_bias_stddev>3.8785e-05</dynamic_bias_stddev><dynamic_bias_correlation_time>1000</dynamic_bias_correlation_time></noise></z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x><noise type="gaussian"><stddev>0.004</stddev><dynamic_bias_stddev>0.006</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></x>
+            <y><noise type="gaussian"><stddev>0.004</stddev><dynamic_bias_stddev>0.006</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></y>
+            <z><noise type="gaussian"><stddev>0.004</stddev><dynamic_bias_stddev>0.006</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
+      <sensor name="air_pressure_sensor" type="air_pressure">
+        <gz_frame_id>base_link</gz_frame_id>
+        <always_on>1</always_on>
+        <update_rate>50</update_rate>
+        <air_pressure><pressure><noise type="gaussian"><stddev>0.01</stddev></noise></pressure></air_pressure>
+      </sensor>
+      <sensor name="magnetometer_sensor" type="magnetometer">
+        <gz_frame_id>base_link</gz_frame_id>
+        <always_on>1</always_on>
+        <update_rate>100</update_rate>
+        <magnetometer>
+          <x><noise type="gaussian"><stddev>0.0001</stddev></noise></x>
+          <y><noise type="gaussian"><stddev>0.0001</stddev></noise></y>
+          <z><noise type="gaussian"><stddev>0.0001</stddev></noise></z>
+        </magnetometer>
+      </sensor>
+      <sensor name="navsat_sensor" type="navsat">
+        <gz_frame_id>base_link</gz_frame_id>
+        <always_on>1</always_on>
+        <update_rate>30</update_rate>
+      </sensor>
+    </link>
+
+    <!-- Itici pervane: link z ekseni (itki yonu) govde +x'e bakacak sekilde pitch 90 -->
+    <link name='rotor_puller'>
+      <pose>-0.368 0 0.055 0 1.5708 0</pose>
+      <inertial>
+        <mass>0.056</mass>
+        <inertia>
+          <ixx>0.00017</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000079</iyy><iyz>0</iyz>
+          <izz>0.000245</izz>
+        </inertia>
+      </inertial>
+      <visual name='rotor_puller_visual'>
+        <pose>0 0 0 0 -1.5708 0</pose>
+        <geometry>
+          <mesh><uri>model://iha/meshes/Propeller.STL</uri></mesh>
+        </geometry>
+        <material>
+          <ambient>0.2 0.2 0.2 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <joint name='rotor_puller_joint' type='revolute'>
+      <child>rotor_puller</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit><lower>-1e+16</lower><upper>1e+16</upper></limit>
+      </axis>
+    </joint>
+
+    <!-- Kontrol yuzeyleri (gorunmez). servo_0 sol aileron, servo_1 sag aileron,
+         servo_2 elevator, servo_3 rudder -->
+    <link name='left_aileron'>
+      <pose>-0.18 0.8 0.075 0 0 0</pose>
+      <inertial><mass>1e-6</mass><inertia><ixx>1e-6</ixx><ixy>0</ixy><ixz>0</ixz><iyy>1e-6</iyy><iyz>0</iyz><izz>1e-6</izz></inertia></inertial>
+    </link>
+    <link name='right_aileron'>
+      <pose>-0.18 -0.8 0.075 0 0 0</pose>
+      <inertial><mass>1e-6</mass><inertia><ixx>1e-6</ixx><ixy>0</ixy><ixz>0</ixz><iyy>1e-6</iyy><iyz>0</iyz><izz>1e-6</izz></inertia></inertial>
+    </link>
+    <link name='elevator'>
+      <pose>-1.0 0 0.1 0 0 0</pose>
+      <inertial><mass>1e-6</mass><inertia><ixx>1e-6</ixx><ixy>0</ixy><ixz>0</ixz><iyy>1e-6</iyy><iyz>0</iyz><izz>1e-6</izz></inertia></inertial>
+    </link>
+    <link name='rudder'>
+      <pose>-1.0 0 0.25 0 0 0</pose>
+      <inertial><mass>1e-6</mass><inertia><ixx>1e-6</ixx><ixy>0</ixy><ixz>0</ixz><iyy>1e-6</iyy><iyz>0</iyz><izz>1e-6</izz></inertia></inertial>
+    </link>
+
+    <joint name='servo_0' type='revolute'>
+      <parent>base_link</parent><child>left_aileron</child>
+      <axis><xyz>0 1 0</xyz><limit><lower>-0.53</lower><upper>0.53</upper></limit><dynamics><damping>1.0</damping></dynamics></axis>
+    </joint>
+    <joint name='servo_1' type='revolute'>
+      <parent>base_link</parent><child>right_aileron</child>
+      <axis><xyz>0 1 0</xyz><limit><lower>-0.53</lower><upper>0.53</upper></limit><dynamics><damping>1.0</damping></dynamics></axis>
+    </joint>
+    <joint name='servo_2' type='revolute'>
+      <parent>base_link</parent><child>elevator</child>
+      <axis><xyz>0 1 0</xyz><limit><lower>-0.53</lower><upper>0.53</upper></limit><dynamics><damping>1.0</damping></dynamics></axis>
+    </joint>
+    <joint name='servo_3' type='revolute'>
+      <parent>base_link</parent><child>rudder</child>
+      <axis><xyz>0 0 1</xyz><limit><lower>-0.53</lower><upper>0.53</upper></limit><dynamics><damping>1.0</damping></dynamics></axis>
+    </joint>
+
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>servo_0</joint_name><sub_topic>servo_0</sub_topic><p_gain>10</p_gain><i_gain>0</i_gain><d_gain>0</d_gain>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>servo_1</joint_name><sub_topic>servo_1</sub_topic><p_gain>10</p_gain><i_gain>0</i_gain><d_gain>0</d_gain>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>servo_2</joint_name><sub_topic>servo_2</sub_topic><p_gain>10</p_gain><i_gain>0</i_gain><d_gain>0</d_gain>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>servo_3</joint_name><sub_topic>servo_3</sub_topic><p_gain>10</p_gain><i_gain>0</i_gain><d_gain>0</d_gain>
+    </plugin>
+
+    <plugin filename="libAirSpeedPlugin.so" name="px4::AirSpeed">
+      <link_name>base_link</link_name>
+    </plugin>
+
+    <!-- Aerodinamik: PX4 advanced_plane katsayilari, bu ucagin alan/veter/AR
+         degerleriyle. Gercek katsayilar icin XFLR5/AVL analizi ile guncellenmeli. -->
+    <plugin filename="gz-sim-advanced-lift-drag-system" name="gz::sim::systems::AdvancedLiftDrag">
+      <a0>0.0</a0>
+      <CL0>0.15188</CL0>
+      <AR>8.6</AR>
+      <eff>0.97</eff>
+      <CLa>5.015</CLa>
+      <CD0>0.029</CD0>
+      <Cem0>0.075</Cem0>
+      <Cema>-0.463966</Cema>
+      <CYb>-0.258244</CYb>
+      <Cellb>-0.039250</Cellb>
+      <Cenb>0.100826</Cenb>
+      <CDp>0.0</CDp>
+      <CYp>0.065861</CYp>
+      <CLp>0.0</CLp>
+      <Cellp>-0.487407</Cellp>
+      <Cemp>0.0</Cemp>
+      <Cenp>-0.040416</Cenp>
+      <CDq>0.055166</CDq>
+      <CYq>0.0</CYq>
+      <CLq>7.971792</CLq>
+      <Cellq>0.0</Cellq>
+      <Cemq>-12.140140</Cemq>
+      <Cenq>0.0</Cenq>
+      <CDr>0.0</CDr>
+      <CYr>0.230299</CYr>
+      <CLr>0.0</CLr>
+      <Cellr>0.078165</Cellr>
+      <Cemr>0.0</Cemr>
+      <Cenr>-0.089947</Cenr>
+      <alpha_stall>0.3391428111</alpha_stall>
+      <CLa_stall>-3.85</CLa_stall>
+      <CDa_stall>-0.9233984055</CDa_stall>
+      <Cema_stall>0</Cema_stall>
+      <cp>-0.05 0.0 0.075</cp>
+      <area>0.60</area>
+      <mac>0.27</mac>
+      <air_density>1.2041</air_density>
+      <forward>1 0 0</forward>
+      <upward>0 0 1</upward>
+      <link_name>base_link</link_name>
+      <num_ctrl_surfaces>4</num_ctrl_surfaces>
+      <control_surface>
+        <name>servo_0</name><index>0</index><direction>1</direction>
+        <CD_ctrl>-0.000059</CD_ctrl><CY_ctrl>0.000171</CY_ctrl><CL_ctrl>-0.011940</CL_ctrl>
+        <Cell_ctrl>-0.003331</Cell_ctrl><Cem_ctrl>0.001498</Cem_ctrl><Cen_ctrl>-0.000057</Cen_ctrl>
+      </control_surface>
+      <control_surface>
+        <name>servo_1</name><index>1</index><direction>1</direction>
+        <CD_ctrl>-0.000059</CD_ctrl><CY_ctrl>-0.000171</CY_ctrl><CL_ctrl>-0.011940</CL_ctrl>
+        <Cell_ctrl>0.003331</Cell_ctrl><Cem_ctrl>0.001498</Cem_ctrl><Cen_ctrl>0.000057</Cen_ctrl>
+      </control_surface>
+      <control_surface>
+        <name>servo_2</name><index>2</index><direction>-1</direction>
+        <CD_ctrl>0.000274</CD_ctrl><CY_ctrl>0</CY_ctrl><CL_ctrl>0.010696</CL_ctrl>
+        <Cell_ctrl>0.0</Cell_ctrl><Cem_ctrl>-0.025798</Cem_ctrl><Cen_ctrl>0.0</Cen_ctrl>
+      </control_surface>
+      <control_surface>
+        <name>servo_3</name><index>3</index><direction>1</direction>
+        <CD_ctrl>0.0</CD_ctrl><CY_ctrl>-0.003913</CY_ctrl><CL_ctrl>0.0</CL_ctrl>
+        <Cell_ctrl>-0.000257</Cell_ctrl><Cem_ctrl>0.0</Cem_ctrl><Cen_ctrl>0.001613</Cen_ctrl>
+      </control_surface>
+    </plugin>
+
+    <!-- Max itki ~ 1.2e-5 * 1600^2 = 30.7 N (itki/agirlik ~0.74) -->
+    <plugin filename="gz-sim-multicopter-motor-model-system" name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_puller_joint</jointName>
+      <linkName>rotor_puller</linkName>
+      <turningDirection>cw</turningDirection>
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+      <maxRotVelocity>3500</maxRotVelocity>
+      <motorConstant>1.2e-05</motorConstant>
+      <momentConstant>0.01</momentConstant>
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>0</motorNumber>
+      <rotorDragCoefficient>8.06428e-05</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-06</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+    </plugin>
+  </model>
+</sdf>
