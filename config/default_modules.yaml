@@ -25,12 +25,24 @@ modules:
     stop_timeout: 3
     start_all: true
 
+  - id: qgc
+    name: QGroundControl
+    description: Yer kontrol istasyonu. PX4'ten önce açılır; İHA airframe'i (NAV_DLL_ACT=2) GCS bağlantısı olmadan kalkışa hazır olmaz.
+    workdir: "~"
+    use_global_setup: false
+    command: ~/QGroundControl.AppImage
+    start_delay: 2
+    stop_timeout: 5
+    start_all: true
+
   - id: px4_sitl
     name: PX4 SITL + Gazebo
-    description: x500 + mono kamera, Gazebo Harmonic
+    description: Takımın İHA'sı (gz_iha), Gazebo Harmonic. Model repodaki sim/px4 klasöründen kopyalanır.
     workdir: ~/PX4-Autopilot
     use_global_setup: false
-    command: make px4_sitl gz_x500_mono_cam
+    setup:
+      - PX4_DIR="$PWD" bash "$HANGAR_DIR/install/scripts/iha_model.sh"
+    command: make px4_sitl gz_iha
     env:
       PX4_GZ_WORLD: default
     ready_pattern: Ready for takeoff
@@ -41,22 +53,13 @@ modules:
 
   - id: gz_cam_bridge
     name: Gazebo Kamera Köprüsü
-    description: Simülasyon kamerasını /camera/image_raw olarak ROS 2'ye aktarır. Topic adını 'gz topic -l' ile doğrulayın.
+    description: x500_mono_cam modeli içindir (İHA modelinde henüz kamera yok). Simülasyon kamerasını /camera/image_raw olarak ROS 2'ye aktarır. Topic adını 'gz topic -l' ile doğrulayın.
     workdir: "~"
     command: >-
       ros2 run ros_gz_bridge parameter_bridge
       '/world/default/model/x500_mono_cam_0/link/camera_link/sensor/imager/image@sensor_msgs/msg/Image[gz.msgs.Image'
       --ros-args -r /world/default/model/x500_mono_cam_0/link/camera_link/sensor/imager/image:=/camera/image_raw
-    start_all: true
-
-  - id: qgc
-    name: QGroundControl
-    description: Yer kontrol istasyonu
-    workdir: "~"
-    use_global_setup: false
-    command: ~/QGroundControl.AppImage
-    stop_timeout: 5
-    start_all: true
+    start_all: false
 
   - id: offboard
     name: Offboard Kontrol

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="İHA SON TUTUCULU boyalı olan URDF propeller">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="0.0661497010868649 1.12875126025869 1.54523749368694"
+        rpy="0 0 0" />
+      <mass
+        value="4.23480472025957" />
+      <inertia
+        ixx="0.220492590446684"
+        ixy="0.000432552535339524"
+        ixz="2.98602402281192E-06"
+        iyy="0.227596468011844"
+        iyz="0.000117008023487875"
+        izz="0.0432566939190616" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://İHA SON TUTUCULU boyalı olan URDF propeller/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://İHA SON TUTUCULU boyalı olan URDF propeller/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="Propeller">
+    <inertial>
+      <origin
+        xyz="-0.0091536 7.9988E-05 -7.0282E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.056073" />
+      <inertia
+        ixx="0.00024869"
+        ixy="1.6845E-09"
+        ixz="-1.5671E-09"
+        iyy="7.8664E-05"
+        iyz="0.000113"
+        izz="0.00017127" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://İHA SON TUTUCULU boyalı olan URDF propeller/meshes/Propeller.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://İHA SON TUTUCULU boyalı olan URDF propeller/meshes/Propeller.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="propeller_joint"
+    type="continuous">
+    <origin
+      xyz="0.28232 -1.543 1.0849"
+      rpy="1.5708 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="Propeller" />
+    <axis
+      xyz="-0.99942 0.032581 -0.0095895" />
+  </joint>
+</robot>

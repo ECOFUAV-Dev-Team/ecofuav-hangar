@@ -31,6 +31,19 @@ components:
     check: git -C "$PX4_DIR" describe --tags --exact-match 2>/dev/null || git -C "$PX4_DIR" describe --tags 2>/dev/null
     script: px4.sh
 
+  - id: iha_model
+    name: İHA modeli (gz_iha, airframe 4900)
+    required: repodaki sim/px4
+    version: repo
+    match: '^güncel$'
+    description: Takımın uçağı. Repodaki model ve airframe PX4-Autopilot'a kopyalanır; PX4 modülü her başlarken de otomatik eşitlenir.
+    check: >-
+      diff -rq "$HANGAR_DIR/sim/px4/models/iha" "$PX4_DIR/Tools/simulation/gz/models/iha" >/dev/null 2>&1
+      && cmp -s "$HANGAR_DIR/sim/px4/airframes/4900_gz_iha" "$PX4_DIR/ROMFS/px4fmu_common/init.d-posix/airframes/4900_gz_iha"
+      && grep -q 4900_gz_iha "$PX4_DIR/ROMFS/px4fmu_common/init.d-posix/airframes/CMakeLists.txt"
+      && echo güncel || { [ -d "$PX4_DIR/Tools/simulation/gz/models/iha" ] && echo eski; }
+    script: iha_model.sh
+
   - id: microxrce
     name: Micro XRCE-DDS Agent
     required: v2.4.3

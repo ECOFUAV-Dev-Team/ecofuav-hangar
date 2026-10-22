@@ -76,6 +76,20 @@ ile takım arkadaşlarınızla paylaşabilirsiniz.
 **Kurulum:** `install/versions.yaml` dosyasındaki takım sürümlerini, sizde yüklü olanlarla
 karşılaştırır ve tek tıkla kurar/günceller. Yönetici şifresi gerektiğinde grafik pencere açılır.
 
+## İHA modeli (gz_iha)
+
+Simülasyonda uçan araç takımın kendi uçağıdır; model repoyla birlikte gelir:
+
+- `sim/px4/models/iha/`: Gazebo modeli (`model.sdf` + STL mesh'leri)
+- `sim/px4/airframes/4900_gz_iha`: PX4 airframe'i (sabit kanat parametreleri)
+- `sim/urdf/iha.urdf`: SolidWorks'ten çıkan orijinal URDF (yalnızca kaynak olarak)
+
+PX4 modülü her başlamadan önce `install/scripts/iha_model.sh` çalışır: model ile airframe'i
+`~/PX4-Autopilot`'a kopyalar, airframe'i PX4'ün listesine ekler ve `make px4_sitl gz_iha` ile
+açar. Değişiklik yoksa hiçbir şey yapmaz. Modeli değiştirmek için repodaki dosyaları düzenleyip
+commit'leyin; herkeste bir sonraki başlatmada güncellenir. Filo sayfasında model olarak
+`gz_iha` seçilebilir.
+
 ## Takım sürümünü değiştirmek
 
 1. `install/versions.yaml` içinde ilgili `version` / `required` / `match` alanlarını güncelleyin.
@@ -116,4 +130,5 @@ hangar/ui/              arayüz sayfaları
 config/default_modules.yaml   ilk açılıştaki modüller
 install/versions.yaml         takım sürüm seti
 install/scripts/*.sh          bileşen kurulum betikleri
+sim/px4/                      takımın İHA modeli ve airframe'i (gz_iha)
 ```
