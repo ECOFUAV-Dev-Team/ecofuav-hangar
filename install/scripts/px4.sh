@@ -3,6 +3,9 @@
 source "$(dirname "$0")/common.sh"
 PX4_DIR="${PX4_DIR:-$HOME/PX4-Autopilot}"
 
+# Kurulum yarıda kalırsa eski işaret "güncel" göstermesin.
+rm -f "$HANGAR_MARKER_DIR/px4"
+
 git_checkout https://github.com/PX4/PX4-Autopilot.git "$PX4_DIR" "$REQ_VERSION" --recursive
 
 step "PX4 bağımlılıkları (Tools/setup/ubuntu.sh) — uzun sürebilir"
