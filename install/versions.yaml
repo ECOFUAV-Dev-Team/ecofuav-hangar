@@ -28,7 +28,8 @@ components:
     name: PX4-Autopilot (SITL + Pixhawk 6C derleme araçları)
     required: v1.15.4
     version: v1.15.4
-    check: git -C "$PX4_DIR" describe --tags --exact-match 2>/dev/null || git -C "$PX4_DIR" describe --tags 2>/dev/null
+    # İşaret dosyası betik sonunda yazılır; klon var ama derleme yarım kaldıysa "yüklü değil" görünür.
+    check: '[ -f "$HANGAR_MARKER_DIR/px4" ] && { git -C "$PX4_DIR" describe --tags --exact-match 2>/dev/null || git -C "$PX4_DIR" describe --tags 2>/dev/null; }'
     script: px4.sh
 
   - id: iha_model
