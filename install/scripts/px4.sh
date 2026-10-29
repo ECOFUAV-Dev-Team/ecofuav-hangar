@@ -11,11 +11,14 @@ git_checkout https://github.com/PX4/PX4-Autopilot.git "$PX4_DIR" "$REQ_VERSION" 
 step "PX4 bağımlılıkları (Tools/setup/ubuntu.sh) — uzun sürebilir"
 bash "$PX4_DIR/Tools/setup/ubuntu.sh"
 
-step "SITL derleniyor (gz_x500_mono_cam)"
+step "SITL derleniyor (px4_sitl)"
 cd "$PX4_DIR"
-DONT_RUN=1 make px4_sitl gz_x500_mono_cam
+# Model hedefi (gz_x500_mono_cam) simülasyonu başlatır; v1.15 DONT_RUN desteklemez, sadece derle.
+make px4_sitl
 
 step "Pixhawk 6C firmware derleniyor (px4_fmu-v6c)"
+# ubuntu.sh derleyiciyi ~/.profile ile PATH'e ekler; oturum yenilenmeden de bulunsun.
+for d in /opt/gcc-arm-none-eabi-*/bin; do [ -d "$d" ] && export PATH="$d:$PATH"; done
 make px4_fmu-v6c_default || echo "UYARI: 6C firmware derlenemedi; SITL yine de hazır."
 
 mark_installed px4 "$REQ_VERSION"
